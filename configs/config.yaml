@@ -10,7 +10,7 @@ data:
   train_split: 0.85
   val_split: 0.05
   test_split: 0.10
-  num_workers: 4
+  num_workers: 2
   subset: 20000  # use 20K for quick iteration, -1 for full
 
 # Synthetic augmentation
