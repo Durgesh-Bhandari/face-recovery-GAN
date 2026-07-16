@@ -70,7 +70,14 @@ def download_kaggle(root, subset, dataset="badasstechie/celebahq-resized-256x256
 
     extract_dir = os.path.join(root, "img_align_celeba")
 
-    # Case 1: Already extracted image directory
+    # CelebA-HQ 256: stored in <path>/celeba_hq_256/
+    hq_dir = next(path.rglob("celeba_hq_256"), None)
+    if hq_dir is not None:
+        if copy_images(str(hq_dir), extract_dir, subset):
+            return
+
+    # Original CelebA: stored in <path>/img_align_celeba/
+    # Colab caches may strip the versions/1/ prefix
     for candidate in [path / "img_align_celeba", path / "images", path]:
         if candidate.is_dir() and copy_images(str(candidate), extract_dir, subset):
             return
