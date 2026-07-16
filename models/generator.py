@@ -15,12 +15,13 @@ class PartialConv2d(nn.Module):
         nn.init.constant_(self.mask_conv.weight, 1.0 / (kernel_size * kernel_size))
 
     def forward(self, x, mask=None):
+        bias = self.bias.view(1, -1, 1, 1)
         if mask is None:
-            return self.conv(x) + self.bias, None
+            return self.conv(x) + bias, None
         out = self.conv(x * mask)
         mask_sum = self.mask_conv(mask)
         mask_sum = torch.clamp(mask_sum, min=1e-8)
-        out = out / mask_sum + self.bias
+        out = out / mask_sum + bias
         new_mask = (mask_sum > 0).float()
         return out, new_mask.detach()
 

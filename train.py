@@ -102,7 +102,7 @@ def train(config):
             mask = batch["mask"].to(device)
 
             # --- Train Discriminator ---
-            with torch.cuda.amp.autocast(enabled=use_amp):
+            with torch.amp.autocast("cuda", enabled=use_amp):
                 with torch.no_grad():
                     fake = generator(inp, mask)
 
@@ -121,7 +121,7 @@ def train(config):
                 d_opt.step()
 
             # --- Train Generator ---
-            with torch.cuda.amp.autocast(enabled=use_amp):
+            with torch.amp.autocast("cuda", enabled=use_amp):
                 fake = generator(inp, mask)
                 d_fake = discriminator(target, fake)
 
