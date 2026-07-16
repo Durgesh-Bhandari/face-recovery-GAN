@@ -117,12 +117,16 @@ def download_text_files(root):
         dest = os.path.join(root, name)
         if os.path.exists(dest):
             continue
-        print(f"Downloading {name}...")
-        resp = requests.get(url, stream=True, timeout=60)
-        resp.raise_for_status()
-        with open(dest, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=8192):
-                f.write(chunk)
+        try:
+            print(f"Downloading {name}...")
+            resp = requests.get(url, stream=True, timeout=60)
+            resp.raise_for_status()
+            with open(dest, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        except Exception as e:
+            print(f"Skipping {name} ({e}) — dataloader uses fallback split")
+            # Dataloader splits 85/5/10 when partition file missing (dataloader.py:46-54)
 
 
 def main():
