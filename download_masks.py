@@ -31,8 +31,9 @@ def ensure(pkg):
 def download_kaggle(root):
     ensure("kagglehub")
     import kagglehub
-    print("Downloading from Kaggle (mnase01/nvidia-irregular-masks)...")
-    path = kagglehub.dataset_download("mnase01/nvidia-irregular-masks")
+    dataset = "nightbot69/irregular-mask-32k"
+    print(f"Downloading from Kaggle ({dataset})...")
+    path = kagglehub.dataset_download(dataset)
     print(f"Kaggle cache: {path}")
     # Find mask images
     masks_src = Path(path) / "irregular_mask" / "mask"

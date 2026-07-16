@@ -60,11 +60,10 @@ def copy_images(src_dir, dst_dir, subset):
     return True
 
 
-def download_kaggle(root, subset):
+def download_kaggle(root, subset, dataset="badasstechie/celebahq-resized-256x256"):
     ensure("kagglehub")
     import kagglehub
 
-    dataset = "jessicali9530/celeba-dataset"
     print(f"Downloading from Kaggle ({dataset})...")
     path = Path(kagglehub.dataset_download(dataset))
     print(f"Kaggle path: {path}")
@@ -123,6 +122,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default="./data/celebA")
     parser.add_argument("--source", default="gdrive", choices=["gdrive", "kaggle"])
+    parser.add_argument("--dataset", default="badasstechie/celebahq-resized-256x256",
+                        help="Kaggle dataset name (default: badasstechie/celebahq-resized-256x256)")
     parser.add_argument("--subset", type=int, default=20000)
     args = parser.parse_args()
 
