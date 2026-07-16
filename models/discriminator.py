@@ -1,4 +1,5 @@
 """models/discriminator.py — Spectral-Norm PatchGAN discriminator."""
+import torch
 import torch.nn as nn
 import torch.nn.utils.spectral_norm as spectral_norm
 
