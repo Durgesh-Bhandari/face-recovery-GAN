@@ -76,22 +76,26 @@ class FaceRecoveryDataset(Dataset):
         img = cv2.imread(path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = cv2.resize(img, (self.img_size, self.img_size))
-        img = img.astype(np.float32) / 127.5 - 1.0  # [-1, 1]
-        target = img.copy()
+        img = img.astype(np.float32) / 127.5 - 1.0  # [-1, 1], shape (H, W, 3)
 
         if random.random() < self.occlusion_prob:
-            mask = self.mask_gen(self.mask_types)
+            mask = self.mask_gen(self.mask_types)  # (H, W)
         else:
             mask = np.zeros((self.img_size, self.img_size), dtype=np.float32)
 
-        mask = mask[None, :, :]  # (1, H, W)
+        mask = mask[:, :, None]  # (H, W, 1)
         occluded = img * (1.0 - mask)
-        inp = np.concatenate([occluded, mask], axis=0)  # (4, H, W)
+
+        # Convert HWC to CHW for torch
+        inp = np.concatenate([occluded, mask], axis=2)  # (H, W, 4)
+        inp = inp.transpose(2, 0, 1)  # (4, H, W)
+        target = img.transpose(2, 0, 1)  # (3, H, W)
+        mask_out = mask.transpose(2, 0, 1)  # (1, H, W)
 
         return {
             "input": torch.from_numpy(inp).float(),
             "target": torch.from_numpy(target).float(),
-            "mask": torch.from_numpy(mask).float(),
+            "mask": torch.from_numpy(mask_out).float(),
             "path": path,
         }
 
