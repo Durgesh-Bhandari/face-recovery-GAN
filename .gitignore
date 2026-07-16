@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+data/celebA/
+data/masks/
+checkpoints/
+runs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+venv/
+.venv/
+.omo/
+docs/
+

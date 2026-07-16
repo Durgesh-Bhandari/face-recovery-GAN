@@ -1,0 +1,69 @@
+# Project
+project_name: "face-recovery-gan"
+seed: 42
+
+# Data
+data:
+  root: "./data/celebA"
+  mask_dir: "./data/masks"
+  img_size: 256
+  train_split: 0.85
+  val_split: 0.05
+  test_split: 0.10
+  num_workers: 4
+  subset: 20000  # use 20K for quick iteration, -1 for full
+
+# Synthetic augmentation
+augmentation:
+  occlusion_prob: 0.9
+  mask_types: ["irregular", "rect", "half"]
+  min_occlusion_ratio: 0.05
+  max_occlusion_ratio: 0.40
+  rotation_yaw_range: [-60, 60]  # degrees, -1 disables
+  rotation_prob: 0.5
+
+# Model: Generator
+generator:
+  in_channels: 4  # RGB + mask
+  out_channels: 3
+  channels: [64, 128, 256, 512, 512, 512]
+  kernel_size: 4
+  use_partial_conv: true
+  use_attention: true
+  attention_position: "bottleneck"
+  dropout: 0.5
+
+# Model: Discriminator
+discriminator:
+  in_channels: 6  # real + fake concat
+  channels: [64, 128, 256, 512]
+  use_spectral_norm: true
+  patch_size: 70
+
+# Loss weights
+loss:
+  l1: 10.0
+  perceptual: 1.0
+  adversarial: 1.0
+  style: 50.0
+  id: 0.5  # optional, 0 to disable
+
+# Training
+training:
+  batch_size: 16
+  epochs: 80
+  lr_g: 0.0002
+  lr_d: 0.0002
+  betas: [0.5, 0.999]
+  g_updates_per_d: 1
+  mixed_precision: true
+  gradient_clip: 1.0
+  checkpoint_interval: 5
+  log_interval: 100
+  sample_interval: 500
+
+# Paths
+paths:
+  checkpoint_dir: "./checkpoints"
+  log_dir: "./runs"
+  sample_dir: "./samples"
