@@ -14,7 +14,7 @@ Or upload this whole repo to Google Drive and open the `.ipynb` from Drive.
 
 ```python
 !pip install torch torchvision opencv-python numpy tqdm pyyaml tensorboard \
-  scikit-image facenet-pytorch scipy albumentations Pillow
+  scikit-image facenet-pytorch scipy albumentations gdown
 ```
 
 ### 3. Download Dataset

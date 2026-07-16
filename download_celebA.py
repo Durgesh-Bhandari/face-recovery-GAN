@@ -1,48 +1,64 @@
-"""download_celebA.py — Download CelebA dataset (aligned+cropped)."""
+"""download_celebA.py — Download CelebA dataset (aligned+cropped).
+
+Uses gdown for large files (Google Drive virus-scan bypass).
+Small text files downloaded via requests.
+
+Usage:
+    python download_celebA.py --root ./data/celebA --subset 20000
+"""
 import os
 import argparse
 import zipfile
-import requests
+import subprocess
+import sys
 from tqdm import tqdm
 
-CELEBA_URLS = {
-    "img_align_celeba.zip": (
-        "https://drive.google.com/uc?export=download&id=0B7EVK8r0v71pZjFTYXZWM3FlRnM"
-    ),
-    "list_eval_partition.txt": (
-        "https://drive.google.com/uc?export=download&id=0B7EVK8r0v71pY0NSMzRuSXJEVkk"
-    ),
-    "list_landmarks_align_celeba.txt": (
-        "https://drive.google.com/uc?export=download&id=0B7EVK8r0v71pd0FJY3Blby1HUTQ"
-    ),
+# Google Drive file IDs
+CELEBA_FILES = {
+    "img_align_celeba.zip": "0B7EVK8r0v71pZjFTYXZWM3FlRnM",
+    "list_eval_partition.txt": "0B7EVK8r0v71pY0NSMzRuSXJEVkk",
+    "list_landmarks_align_celeba.txt": "0B7EVK8r0v71pd0FJY3Blby1HUTQ",
 }
 
 
-def download_file(url, dest, chunk_size=8192):
-    resp = requests.get(url, stream=True, allow_redirects=True)
-    total = int(resp.headers.get("content-length", 0))
-    with open(dest, "wb") as f, tqdm(total=total, unit="B", unit_scale=True) as pbar:
-        for chunk in resp.iter_content(chunk_size=chunk_size):
-            f.write(chunk)
-            pbar.update(len(chunk))
+def ensure_gdown():
+    """Install gdown if not available."""
+    try:
+        import gdown
+        return True
+    except ImportError:
+        print("Installing gdown (required for Google Drive downloads)...")
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "gdown"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        return True
+
+
+def download_with_gdown(file_id, dest):
+    """Download a file from Google Drive using gdown."""
+    import gdown
+    url = f"https://drive.google.com/uc?id={file_id}"
+    gdown.download(url, dest, quiet=False)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default="./data/celebA", help="Download root")
-    parser.add_argument("--subset", type=int, default=20000, help="Limit images (-1 for all)")
+    parser.add_argument("--subset", type=int, default=20000,
+                        help="Limit images (-1 for all)")
     args = parser.parse_args()
 
     os.makedirs(args.root, exist_ok=True)
+    ensure_gdown()
 
-    # Download
-    for filename, url in CELEBA_URLS.items():
+    for filename, file_id in CELEBA_FILES.items():
         dest = os.path.join(args.root, filename)
-        if not os.path.exists(dest):
-            print(f"Downloading {filename}...")
-            download_file(url, dest)
-        else:
+        if os.path.exists(dest):
             print(f"{filename} exists, skipping")
+            continue
+        print(f"Downloading {filename}...")
+        download_with_gdown(file_id, dest)
 
     # Extract zip
     zip_path = os.path.join(args.root, "img_align_celeba.zip")
