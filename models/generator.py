@@ -134,11 +134,14 @@ class ContextualUNet(nn.Module):
         self.up3 = UNetUp(ch[3] * 2, ch[2], dropout=dropout)
         self.up4 = UNetUp(ch[2] * 2, ch[1], dropout=0.0)
         self.up5 = UNetUp(ch[1] * 2, ch[0], dropout=0.0)
-        self.up6 = UNetUp(ch[0] * 2, ch[0], dropout=0.0)
+        # up6: final upsample to full res, no skip (spatial dim mismatch)
+        self.up6 = nn.ConvTranspose2d(ch[0], ch[0], 4, 2, 1, bias=False)
+        self.up6_bn = nn.BatchNorm2d(ch[0])
+        self.up6_relu = nn.ReLU(inplace=True)
 
         # Output
         self.final = nn.Sequential(
-            nn.Conv2d(ch[0] * 2, cfg["out_channels"], 3, 1, 1),
+            nn.Conv2d(ch[0], cfg["out_channels"], 3, 1, 1),
             nn.Tanh(),
         )
 
@@ -158,7 +161,7 @@ class ContextualUNet(nn.Module):
         u3 = self.up3(u2, d3)
         u4 = self.up4(u3, d2)
         u5 = self.up5(u4, d1)
-        u6 = self.up6(u5, d1)
+        u6 = self.up6_relu(self.up6_bn(self.up6(u5)))
 
         out = self.final(u6)
 
