@@ -55,10 +55,16 @@ def download_kaggle(root):
     import kagglehub
     print("Downloading from Kaggle (jessicali9530/celeba-dataset)...")
     path = kagglehub.dataset_download("jessicali9530/celeba-dataset")
-    src = os.path.join(path, "img_align_celeba.zip")
+    print(f"Kaggle cache path: {path}")
+    # Find the zip file in the downloaded directory
+    zip_files = list(Path(path).rglob("*.zip"))
+    if not zip_files:
+        eprint(f"No zip found in {path}")
+        sys.exit(1)
+    src = str(zip_files[0])
     dest = os.path.join(root, "img_align_celeba.zip")
     shutil.copy2(src, dest)
-    print(f"Copied to {dest}")
+    print(f"Copied {src} -> {dest}")
     return dest
 
 
