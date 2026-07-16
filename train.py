@@ -73,8 +73,8 @@ def train(config):
 
     # Mixed precision
     use_amp = config["training"]["mixed_precision"]
-    scaler_g = torch.cuda.amp.GradScaler() if use_amp else None
-    scaler_d = torch.cuda.amp.GradScaler() if use_amp else None
+    scaler_g = torch.amp.GradScaler("cuda") if use_amp else None
+    scaler_d = torch.amp.GradScaler("cuda") if use_amp else None
 
     # Logging
     os.makedirs(config["paths"]["checkpoint_dir"], exist_ok=True)
